@@ -1,4 +1,4 @@
-# GemuNamae
+# Readme
 
 Made for the Ludum Dare 36 game jam.
 
