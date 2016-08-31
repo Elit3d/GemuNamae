@@ -10,9 +10,12 @@ The source code for the original upload can be found here: https://github.com/El
 
 The master branch is specifically dedicated to game updates and polish. 
 
+
 Please refer to the releases section (https://github.com/Elit3d/GemuNamae/releases) for versions of the game.
 
 ---
 Credit to Kyle Thomas (Game programmer)
+
 http://www.kyle-thomas.com
+
 http://www.twitter.com/Elit3dGaming
