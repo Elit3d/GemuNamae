@@ -15,7 +15,5 @@ Please refer to the releases section (https://github.com/Elit3d/GemuNamae/releas
 
 ---
 Credit to Kyle Thomas (Game programmer)
-
 http://www.kyle-thomas.com
-
 http://www.twitter.com/Elit3dGaming
