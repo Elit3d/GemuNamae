@@ -32,8 +32,7 @@ public:
 	void Draw(sf::RenderWindow &window);
 
 	void SetupBlocks();
-	bool SpawnSolidBlock();
-	bool SpawnEnemyOnBlock();
+	void SetupFont();
 	void SetupEnemy();
 	void RestartGame();
 	void NextLevel();
@@ -44,6 +43,10 @@ public:
 	bool topWallCollide(sf::Sprite &obj1);
 	bool leftWallCollide(sf::Sprite &obj1);
 	bool rightWallCollide(sf::Sprite &obj1);
+
+	bool SpawnSolidBlock();
+	bool SpawnEnemyOnBlock();
+	bool SpawnDropsOnBlock();
 private:
 	Enemy *e1;
 	Player player;
@@ -56,12 +59,17 @@ private:
 	std::vector<Enemy*> enemyVector;
 	std::vector<Enemy*>::iterator enemyiter;
 
+	std::vector<sf::Sprite> block_vector;
+	std::vector<sf::Sprite>::iterator block_iter;
+
+	std::vector<sf::Sprite> hDropVector;
+
 	sf::Texture block_texture;
 	sf::Sprite block_sprite[SOLID_WIDTH][SOLID_HEIGHT];
 
 	sf::Texture player_texture;
 	sf::Sprite player_sprite;
-	
+
 	sf::Texture whip_texture;
 	sf::Sprite whip_sprite;
 
@@ -71,16 +79,11 @@ private:
 	sf::Texture heart_texture;
 	sf::Sprite heart_sprite;
 
-	std::vector<sf::Sprite> block_vector;
-	std::vector<sf::Sprite>::iterator block_iter;
-
-	float spawncounter;
-	int randNumber;
-	bool drawWhip = false;
+	sf::Texture hDrop_texture;
+	sf::Sprite hDrop_sprite;
 
 	sf::View view;
 	sf::View uiView;
-	sf::Vector2f vel;
 
 	sf::Font font;
 	sf::Text health;
@@ -91,8 +94,10 @@ private:
 	sf::Text gameName;
 	sf::Text createdby;
 
-	bool leftCollide, rightCollide, topCollide, bottomCollide;
-	int blockLeft, blockRight, blockUp, blockDown;
 	int oldPosY, oldPosX;
+	float spawncounter;
+	int randNumber;
+	bool drawWhip = false;
+	int viewCounter;
 };
 

@@ -6,8 +6,9 @@ Projectile::Projectile()
 	bulletLifeTime = 0;
 	lifeTime = rand() % 500 + 250;
 	
-	//texture.loadFromFile("img/dagger.png");
-	//sprite.setTexture(texture);
+	texture.loadFromFile("img/dagger.png");
+	sprite.setTexture(texture);
+	sprite.setRotation(180);
 
 	rect.setSize(sf::Vector2f(10, 10));
 	rect.setPosition(0, 0);

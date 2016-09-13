@@ -4,6 +4,7 @@
 Game::Game()
 {
 	spawncounter = 0;
+	viewCounter = 0;
 	state = MENU;
 }
 
@@ -22,10 +23,6 @@ int Game::generateRand(int min, int max)
 
 void Game::Setup()
 {
-	topCollide = false;
-
-	font.loadFromFile("font/arial.ttf");
-
 	player_texture.loadFromFile("img/player.png");
 	player_sprite.setTexture(player_texture);
 	player_sprite.setPosition(50, -100);
@@ -35,13 +32,30 @@ void Game::Setup()
 
 	block_texture.loadFromFile("img/block.png");
 
+	bg_texture.loadFromFile("img/bg.png");
+	bg_sprite.setTexture(bg_texture);
+	bg_sprite.setPosition(0, 0);
+
+	hDrop_texture.loadFromFile("img/heart_containers/heart_drop.png");
+	hDrop_sprite.setTexture(hDrop_texture);
+
 	SetupBlocks();
+	SetupFont();
+
+	uiView.setViewport(sf::FloatRect(0, 0, 1, 0.666f)); //HUD View
+}
+
+void Game::SetupFont()
+{
+	font.loadFromFile("font/arial.ttf");
 
 	health.setFont(font);
 	health.setCharacterSize(18);
 
 	score.setFont(font);
 	score.setCharacterSize(18);
+	score.setPosition(20, 80);
+	score.setScale(sf::Vector2f(3, 3));
 
 	game_over.setFont(font);
 	game_over.setCharacterSize(30);
@@ -65,13 +79,6 @@ void Game::Setup()
 	createdby.setCharacterSize(18);
 	createdby.setString("Kyle Thomas - @Elit3dGaming");
 	createdby.setPosition(40, 470);
-
-	bg_texture.loadFromFile("img/bg.png");
-	bg_sprite.setTexture(bg_texture);
-	bg_sprite.setPosition(0, 0);
-
-	uiView.setViewport(sf::FloatRect(0, 0, 1, 1));
-	//uiView.zoom();
 }
 
 void Game::SetupBlocks()
@@ -84,14 +91,25 @@ void Game::SetupBlocks()
 
 			if (SpawnSolidBlock() == true)
 			{
+				//give the player room to move
+				//spawn every on grid 64 rather than every 32
 				block_sprite[x][y].setPosition(x * 32, 32 + (y * 64));
 				block_vector.push_back(block_sprite[x][y]);
 
+				//spawn enemy
 				if (SpawnEnemyOnBlock() == true)
 				{
 					e1 = new Enemy("img/enemy1.png");
-					e1->set_pos(x * 32, block_sprite[x][y].getPosition().y - e1->getHeight());
+					//first enemy won't start on first level
+					e1->set_pos(x * 32, 64 + (block_sprite[x][y].getPosition().y - e1->getHeight()));
 					enemyVector.push_back(e1);
+				}
+
+				//spawn drops
+				if (SpawnDropsOnBlock() == true)
+				{
+					hDrop_sprite.setPosition(block_sprite[x][y].getPosition().x + hDrop_sprite.getGlobalBounds().width, block_sprite[x][y].getPosition().y - hDrop_sprite.getGlobalBounds().height);
+					hDropVector.push_back(hDrop_sprite);
 				}
 			}
 		}
@@ -115,6 +133,16 @@ bool Game::SpawnSolidBlock()
 bool Game::SpawnEnemyOnBlock()
 {
 	if (generateRand(0, 10) == 0)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool Game::SpawnDropsOnBlock()
+{
+	//1 in 100
+	if (generateRand(0, 100) == 0)
 	{
 		return true;
 	}
@@ -158,11 +186,15 @@ void Game::NextLevel()
 		{
 			block_vector.clear();
 		}
+
+		for (int i = 0; i < hDropVector.size(); i++)
+		{
+			hDropVector.clear();
+		}
 	}
 
 	player.setHealth(10);
 	player_sprite.setPosition(50, 0);
-	player_sprite.setScale(4, 4);
 }
 
 void Game::RestartGame()
@@ -243,7 +275,8 @@ void Game::HeartContainers()
 	}
 
 	heart_sprite.setTexture(heart_texture);
-	heart_sprite.setPosition(0,0);
+	heart_sprite.setScale(sf::Vector2f(6, 6));
+	heart_sprite.setPosition(20, 25);
 }
 
 void Game::Update()
@@ -271,7 +304,6 @@ void Game::Update()
 		health.setPosition(player_sprite.getPosition().x - 150, player_sprite.getPosition().y - 245);
 		health.setString(ss.str());
 
-		score.setPosition(player_sprite.getPosition().x + 50, player_sprite.getPosition().y - 245);
 		score.setString(ss1.str());
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::M))
@@ -281,6 +313,32 @@ void Game::Update()
 
 		oldPosY = player_sprite.getPosition().y;
 		oldPosX = player_sprite.getPosition().x;
+
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		{
+			viewCounter += 2;
+
+			std::cout << viewCounter << std::endl;
+
+			if (viewCounter <= 100)
+				view.setCenter(player_sprite.getPosition().x, player_sprite.getPosition().y + viewCounter);
+			else if (viewCounter >= 100)
+			{
+				viewCounter = 100;
+				view.setCenter(player_sprite.getPosition().x, player_sprite.getPosition().y + viewCounter);
+			}
+		}
+		else
+		{
+			viewCounter -= 2;
+			if (viewCounter >= 0)
+				view.setCenter(player_sprite.getPosition().x, player_sprite.getPosition().y + viewCounter);
+			else
+			{
+				viewCounter = 0;
+				view.setCenter(player_sprite.getPosition().x, player_sprite.getPosition().y);
+			}
+		}
 
 		//top tile collision
 		if (topWallCollide(player_sprite))
@@ -329,16 +387,21 @@ void Game::Update()
 			drawWhip = false;
 		}	
 
-
 		for (enemyiter = enemyVector.begin(); enemyiter != enemyVector.end(); enemyiter++)
 		{
-			//(*enemyiter)->Attack(player_sprite);
-			if ((*enemyiter)->FireProjectile() == true)
+			//avoids all enemies shooting at once because it was laggy
+			if ((*enemyiter)->sprite.getPosition().y >= player_sprite.getPosition().y - player_sprite.getGlobalBounds().height 
+				&& (*enemyiter)->sprite.getPosition().y <= player_sprite.getPosition().y + 250)
 			{
-				proj.rect.setPosition((*enemyiter)->getPos().x, (*enemyiter)->getPos().y + (*enemyiter)->getSprite().getGlobalBounds().width / 2);
-				projVector.push_back(proj);
+				//shoot 
+				if ((*enemyiter)->FireProjectile() == true)
+				{
+					proj.sprite.setPosition((*enemyiter)->sprite.getPosition().x + (*enemyiter)->sprite.getGlobalBounds().width / 2, (*enemyiter)->getPos().y + (*enemyiter)->getSprite().getGlobalBounds().width / 2);
+					projVector.push_back(proj);
+				}
 			}
 
+			//handles enemy movement
 			(*enemyiter)->moveEnemy();
 		}
 
@@ -401,6 +464,17 @@ void Game::DestroyObjects()
 			break;
 		}
 
+		//projectile collision
+		for (projiter = projVector.begin(); projiter != projVector.end(); projiter++)
+		{
+			if ((projiter)->sprite.getGlobalBounds().intersects(player_sprite.getGlobalBounds()))
+			{
+				player.takeDmg(1);
+				projVector.erase(projiter);
+				break;
+			}
+		}
+
 		for ((*enemyiter)->dagger_iter = (*enemyiter)->dagger_vector.begin(); (*enemyiter)->dagger_iter != (*enemyiter)->dagger_vector.end(); (*enemyiter)->dagger_iter++)
 		{
 			//whip collision with dagger
@@ -440,6 +514,9 @@ void Game::Draw(sf::RenderWindow &window)
 		for (int i = 0; i < block_vector.size(); i++)
 			window.draw(block_vector[i]);
 
+		for (int i = 0; i < hDropVector.size(); i++)
+			window.draw(hDropVector[i]);
+
 		window.draw(player_sprite);
 
 		if (drawWhip == true)
@@ -447,8 +524,8 @@ void Game::Draw(sf::RenderWindow &window)
 
 		for (projiter = projVector.begin(); projiter != projVector.end(); projiter++)
 		{
-			(projiter)->rect.move(1.0f, 0);
-			window.draw((projiter)->rect);
+			(projiter)->sprite.move(1.0f, 0);
+			window.draw((projiter)->sprite);
 		}
 
 		for (enemyiter = enemyVector.begin(); enemyiter != enemyVector.end(); enemyiter++)
@@ -456,11 +533,14 @@ void Game::Draw(sf::RenderWindow &window)
 			window.draw((*enemyiter)->sprite);
 		}
 
-		window.draw(health);
-		window.draw(score);
+		//window.draw(health);
 
 		window.setView(uiView);
 		window.draw(heart_sprite);
+		window.draw(score);
+
+		//set the view back for now
+		window.setView(view);
 		break;
 	case PAUSE:
 		break;
