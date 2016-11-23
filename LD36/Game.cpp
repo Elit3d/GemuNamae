@@ -123,6 +123,7 @@ void Game::SetupEnemy()
 
 bool Game::SpawnSolidBlock()
 {
+	// 1 in 2
 	if (generateRand(0, 2) == 0)
 	{
 		return true;
@@ -132,6 +133,7 @@ bool Game::SpawnSolidBlock()
 
 bool Game::SpawnEnemyOnBlock()
 {
+	//1 in 10
 	if (generateRand(0, 10) == 0)
 	{
 		return true;
@@ -318,8 +320,6 @@ void Game::Update()
 		{
 			viewCounter += 2;
 
-			std::cout << viewCounter << std::endl;
-
 			if (viewCounter <= 100)
 				view.setCenter(player_sprite.getPosition().x, player_sprite.getPosition().y + viewCounter);
 			else if (viewCounter >= 100)
@@ -331,6 +331,7 @@ void Game::Update()
 		else
 		{
 			viewCounter -= 2;
+
 			if (viewCounter >= 0)
 				view.setCenter(player_sprite.getPosition().x, player_sprite.getPosition().y + viewCounter);
 			else
@@ -390,19 +391,30 @@ void Game::Update()
 		for (enemyiter = enemyVector.begin(); enemyiter != enemyVector.end(); enemyiter++)
 		{
 			//avoids all enemies shooting at once because it was laggy
-			if ((*enemyiter)->sprite.getPosition().y >= player_sprite.getPosition().y - player_sprite.getGlobalBounds().height 
-				&& (*enemyiter)->sprite.getPosition().y <= player_sprite.getPosition().y + 250)
-			{
-				//shoot 
-				if ((*enemyiter)->FireProjectile() == true)
-				{
-					proj.sprite.setPosition((*enemyiter)->sprite.getPosition().x + (*enemyiter)->sprite.getGlobalBounds().width / 2, (*enemyiter)->getPos().y + (*enemyiter)->getSprite().getGlobalBounds().width / 2);
-					projVector.push_back(proj);
-				}
-			}
+			//if ((*enemyiter)->sprite.getPosition().y >= player_sprite.getPosition().y - player_sprite.getGlobalBounds().height 
+			//	&& (*enemyiter)->sprite.getPosition().y <= player_sprite.getPosition().y + 250)
+			//{
+			//	//shoot 
+			//	if ((*enemyiter)->FireProjectile() == true)
+			//	{
+			//		if (player_sprite.getPosition().x < (*enemyiter)->sprite.getPosition().x)
+			//		{
+			//			proj.sprite.setPosition((*enemyiter)->sprite.getPosition().x + (*enemyiter)->sprite.getGlobalBounds().width / 2, (*enemyiter)->getPos().y + (*enemyiter)->getSprite().getGlobalBounds().width / 2);
+			//			proj.sprite.move(-1.0f, 0);
+			//			projVector.push_back(proj);
+			//		}
+			//		else
+			//		{
+			//			proj.sprite.move(1.0f, 0);
+			//			proj.sprite.setPosition((*enemyiter)->sprite.getPosition().x + (*enemyiter)->sprite.getGlobalBounds().width / 2, (*enemyiter)->getPos().y + (*enemyiter)->getSprite().getGlobalBounds().width / 2);
+			//			projVector.push_back(proj);
+			//		}
+			//	}
+			//}
 
 			//handles enemy movement
 			(*enemyiter)->moveEnemy();
+			(*enemyiter)->Attack(player_sprite);
 		}
 
 		if (player_sprite.getPosition().y >= 6300)
@@ -444,15 +456,28 @@ void Game::Update()
 
 void Game::DestroyObjects()
 {
-	for (projiter = projVector.begin(); projiter != projVector.end(); projiter++)
+	for (hDropIter = hDropVector.begin(); hDropIter != hDropVector.end(); hDropIter++)
 	{
-		//kill projectile
-		if ((projiter)->Destroy() == true)
+		if (player_sprite.getGlobalBounds().intersects(hDropIter->getGlobalBounds()))
 		{
-			projVector.erase(projiter);
-			break;
+			if (player.getHealth() < 10)
+			{
+				player.setHealth(player.getHealth() + 1);
+				hDropVector.erase(hDropIter);
+				break;
+			}
 		}
 	}
+
+	//for (projiter = projVector.begin(); projiter != projVector.end(); projiter++)
+	//{
+	//	//kill projectile
+	//	if ((projiter)->Destroy() == true)
+	//	{
+	//		projVector.erase(projiter);
+	//		break;
+	//	}
+	//}
 
 	for (enemyiter = enemyVector.begin(); enemyiter != enemyVector.end(); enemyiter++)
 	{
@@ -465,7 +490,7 @@ void Game::DestroyObjects()
 		}
 
 		//projectile collision
-		for (projiter = projVector.begin(); projiter != projVector.end(); projiter++)
+		/*for (projiter = projVector.begin(); projiter != projVector.end(); projiter++)
 		{
 			if ((projiter)->sprite.getGlobalBounds().intersects(player_sprite.getGlobalBounds()))
 			{
@@ -473,7 +498,7 @@ void Game::DestroyObjects()
 				projVector.erase(projiter);
 				break;
 			}
-		}
+		}*/
 
 		for ((*enemyiter)->dagger_iter = (*enemyiter)->dagger_vector.begin(); (*enemyiter)->dagger_iter != (*enemyiter)->dagger_vector.end(); (*enemyiter)->dagger_iter++)
 		{
@@ -522,15 +547,17 @@ void Game::Draw(sf::RenderWindow &window)
 		if (drawWhip == true)
 			window.draw(whip_sprite);
 
-		for (projiter = projVector.begin(); projiter != projVector.end(); projiter++)
+		/*for (projiter = projVector.begin(); projiter != projVector.end(); projiter++)
 		{
-			(projiter)->sprite.move(1.0f, 0);
-			window.draw((projiter)->sprite);
-		}
+
+				window.draw((projiter)->sprite);
+			
+		}*/
 
 		for (enemyiter = enemyVector.begin(); enemyiter != enemyVector.end(); enemyiter++)
 		{
 			window.draw((*enemyiter)->sprite);
+			(*enemyiter)->Draw(window);
 		}
 
 		//window.draw(health);

@@ -51,10 +51,10 @@ private:
 	Enemy *e1;
 	Player player;
 	GameState state;
-	Projectile proj;
+	//Projectile proj;
 
-	std::vector<Projectile> projVector;
-	std::vector<Projectile>::iterator projiter;
+	//std::vector<Projectile> projVector;
+	//std::vector<Projectile>::iterator projiter;
 
 	std::vector<Enemy*> enemyVector;
 	std::vector<Enemy*>::iterator enemyiter;
@@ -63,6 +63,7 @@ private:
 	std::vector<sf::Sprite>::iterator block_iter;
 
 	std::vector<sf::Sprite> hDropVector;
+	std::vector<sf::Sprite>::iterator hDropIter;
 
 	sf::Texture block_texture;
 	sf::Sprite block_sprite[SOLID_WIDTH][SOLID_HEIGHT];
@@ -99,5 +100,6 @@ private:
 	int randNumber;
 	bool drawWhip = false;
 	int viewCounter;
+	int shotDir;
 };
 

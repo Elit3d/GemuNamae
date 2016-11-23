@@ -1,9 +1,12 @@
 #pragma once
-class Player
+#include "Entity.h"
+
+class Player : public Entity
 {
 public:
 	Player();
 	~Player();
+	Player(std::string filename);
 
 	int getHealth();
 	void setHealth(int h);

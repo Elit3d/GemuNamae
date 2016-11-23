@@ -69,46 +69,67 @@ sf::Sprite Enemy::getDaggerSprite()
 
 void Enemy::Attack(sf::Sprite player)
 {
-	//bulletLifetime++;
-	//if (bulletLifetime >= 500)
-	//{
-	//	destroy = true;
-	//	bulletLifetime = 0;
-	//}
+	bulletLifetime++;
+	if (bulletLifetime >= 500)
+	{
+		destroy = true;
+		bulletLifetime = 0;
+	}
 
-	//sf::Time elapsed1 = projectileClock.getElapsedTime();
+	sf::Time elapsed1 = projectileClock.getElapsedTime();
 
 	//Shoot bullets at certain speed
-	//if (elapsed1.asSeconds() >= randProjectileTime)
-	//{
-	//	randProjectileTime = rand() % 5 + 1;
-	//	projectileClock.restart(); // Restart clock
-	//	if (player.getPosition().x < sprite.getPosition().x)
-	//	{
-	//		//dagger_sprite.setRotation(0);
-	//		//dagger_sprite.setPosition(sprite.getPosition().x - sprite.getGlobalBounds().width, sprite.getPosition().y + 10);
-	//		shotDir = 0;
-	//		//dagger_vector.push_back(dagger_sprite);
-	//	}
-	//	else if (player.getPosition().x > sprite.getPosition().x)
-	//	{
-	//		//dagger_sprite.setRotation(180);
-	//		//dagger_sprite.setPosition(sprite.getPosition().x + sprite.getGlobalBounds().width, sprite.getPosition().y + 14);
-	//		shotDir = 1;
-	//		//dagger_vector.push_back(dagger_sprite);
-	//	}
-	//}
+	if (elapsed1.asSeconds() >= randProjectileTime)
+	{
+		randProjectileTime = rand() % 5 + 1;
+		projectileClock.restart(); // Restart clock
+		if (player.getPosition().x < sprite.getPosition().x)
+		{
+			dagger_sprite.setRotation(0);
+			dagger_sprite.setPosition(sprite.getPosition().x - sprite.getGlobalBounds().width, sprite.getPosition().y + 10);
+			shotDir = 0;
+			dagger_vector.push_back(dagger_sprite);
+		}
+		else if (player.getPosition().x > sprite.getPosition().x)
+		{
+			dagger_sprite.setRotation(180);
+			dagger_sprite.setPosition(sprite.getPosition().x + sprite.getGlobalBounds().width, sprite.getPosition().y + 14);
+			shotDir = 1;
+			dagger_vector.push_back(dagger_sprite);
+		}
+	}
 
-	//for (dagger_iter = dagger_vector.begin(); dagger_iter != dagger_vector.end(); dagger_iter++)
-	//{
-	//	if (destroy == true)
-	//	{
-	//		dagger_vector.erase(dagger_iter);
-	//		destroy = false;
-	//		break;
-	//	}
-	//}
+	for (dagger_iter = dagger_vector.begin(); dagger_iter != dagger_vector.end(); dagger_iter++)
+	{
+		if (destroy == true)
+		{
+			dagger_vector.erase(dagger_iter);
+			destroy = false;
+			break;
+		}
+	}
 }
+
+//void Enemy::Update(Player &player)
+//{
+//	if (FireProjectile() == true)
+//	{
+//		proj.sprite.setPosition(sprite.getPosition().x + sprite.getGlobalBounds().width / 2, getPos().y + getSprite().getGlobalBounds().width / 2);
+//		projVector.push_back(proj);
+//	}
+//
+//	for (int i = 0; i < projVector.size(); i++)
+//	{
+//		if (player.sprite.getPosition().x <= sprite.getPosition().x)
+//		{
+//			projVector[i].sprite.move(-1.0f, 0);
+//		}
+//		else
+//		{
+//			projVector[i].sprite.move(1.0f, 0);
+//		}
+//	}
+//}
 
 bool Enemy::FireProjectile()
 {
@@ -129,21 +150,26 @@ sf::Sprite Enemy::getSprite()
 	return sprite;
 }
 
-//void Enemy::Draw(sf::RenderWindow &window)
-//{
-//	window.draw(sprite);
-//
-//	for (dagger_iter = dagger_vector.begin(); dagger_iter != dagger_vector.end(); dagger_iter++)
-//	{
-//		if (shotDir == 0)
-//		{
-//			(dagger_iter)->move(-1.0f, 0.0f);
-//			window.draw((*dagger_iter));
-//		}
-//		else if (shotDir == 1)
-//		{
-//			(dagger_iter)->move(1.0f, 0.0f);
-//			window.draw((*dagger_iter));
-//		}
-//	}
-//}
+void Enemy::Draw(sf::RenderWindow &window)
+{
+	//for (int i = 0; i < projVector.size(); i++)
+	//{
+	//	window.draw(projVector[i].sprite);
+	//}
+
+	//window.draw(sprite);
+
+	for (dagger_iter = dagger_vector.begin(); dagger_iter != dagger_vector.end(); dagger_iter++)
+	{
+		if (shotDir == 0)
+		{
+			(dagger_iter)->move(-1.0f, 0.0f);
+			window.draw((*dagger_iter));
+		}
+		else if (shotDir == 1)
+		{
+			(dagger_iter)->move(1.0f, 0.0f);
+			window.draw((*dagger_iter));
+		}
+	}
+}

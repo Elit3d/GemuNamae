@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Entity.h"
+#include "Projectile.h"
 
 class Enemy : 
 	public Entity
@@ -25,7 +26,9 @@ public:
 	std::vector<sf::Sprite>::iterator dagger_iter;
 
 	bool FireProjectile();
-	//void Draw(sf::RenderWindow &window);
+
+	//void Update(Player &player);
+	void Draw(sf::RenderWindow &window);
 private:
 	//sf::Sprite sprite;
 	//sf::Texture texture;

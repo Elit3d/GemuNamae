@@ -12,6 +12,13 @@ Player::~Player()
 {
 }
 
+Player::Player(std::string filename)
+{
+	texture.loadFromFile("img/player.png");
+	sprite.setTexture(texture);
+	sprite.setPosition(50, -100);
+}
+
 int Player::getHealth()
 {
 	return health;
